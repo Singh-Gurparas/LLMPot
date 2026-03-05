@@ -1,0 +1,23 @@
+# env files
+.env
+.env.*
+
+# python
+__pycache__/
+*.pyc
+
+# node
+node_modules/
+
+# docker
+*.log
+
+# build
+dist/
+build/
+
+# vscode
+.vscode/
+
+# OS
+.DS_Store

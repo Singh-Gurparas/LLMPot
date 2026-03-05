@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: unharmd-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-unharmd_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-unharmd_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-unharmd_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    networks:
+      - internal_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: unharmd-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - internal_net
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: unharmd-backend
+    read_only: true
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-unharmd_admin}:${POSTGRES_PASSWORD:-unharmd_secret}@postgres:5432/${POSTGRES_DB:-unharmd_db}
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - internal_net
+      - api_net
+
+  edge-node:
+    build:
+      context: ../edge-node
+      dockerfile: Dockerfile
+    container_name: unharmd-edge-node
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - ../.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - NODE_REGION=${NODE_REGION:-global-1}
+      - NODE_IP=${NODE_IP:-127.0.0.1}
+    ports:
+      - "80:8000"
+      - "443:8443"
+      - "8080:8080"
+      - "9200:9200"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - internal_net
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: unharmd-frontend
+    read_only: true
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - api_net
+
+volumes:
+  postgres_data:
+  redis_data:
+
+
+networks:
+  internal_net:
+    driver: bridge
+  api_net:
+    driver: bridge
