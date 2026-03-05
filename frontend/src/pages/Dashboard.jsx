@@ -55,7 +55,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-center min-h-screen">
                 <div className="flex items-center space-x-3 text-primary-500">
                     <Activity className="animate-spin" size={32} />
-                    <span className="text-xl font-bold tracking-widest">INITIALIZING UNHARMD SENSORS...</span>
+                    <span className="text-xl font-bold tracking-widest">INITIALIZING LLMPOT SENSORS...</span>
                 </div>
             </div>
         );
@@ -66,7 +66,7 @@ export default function Dashboard() {
             <header className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">
-                        UnHarmd Global Overview
+                        LLMPot Global Overview
                     </h1>
                     <p className="text-gray-400 mt-2 flex items-center">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
@@ -94,23 +94,23 @@ export default function Dashboard() {
                                     <div key={i} className="flex justify-between items-center text-sm border-b border-gray-800 pb-2">
                                         <span className="text-gray-300">{a.classification}</span>
                                         <span className={`font-mono ${a.severity === 'Critical' ? 'text-red-500' : 'text-orange-400'}`}>
-                                        {a.severity}
-                                    </span>
+                                            {a.severity}
+                                        </span>
                                     </div>
-                        ))
-                        ) : (
-                        <p className="text-gray-500 text-sm">Waiting for telemetry...</p>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 text-sm">Waiting for telemetry...</p>
                             )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
             {
-        selectedAttack && (
-            <AttackDetails attack={selectedAttack} onClose={() => setSelectedAttack(null)} />
-        )
-    }
+                selectedAttack && (
+                    <AttackDetails attack={selectedAttack} onClose={() => setSelectedAttack(null)} />
+                )
+            }
         </div >
     );
 }

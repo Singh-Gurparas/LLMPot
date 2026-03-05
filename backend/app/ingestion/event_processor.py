@@ -15,7 +15,7 @@ from app.services.llm_service import llm_service
 
 logger = logging.getLogger(__name__)
 
-REDIS_CHANNEL = "unharmd_events"
+REDIS_CHANNEL = "llmpot_events"
 
 async def process_event(event_data: dict, db: AsyncSession):
     try:

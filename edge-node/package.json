@@ -1,7 +1,7 @@
 {
-  "name": "unharmd-edge-node",
+  "name": "llmpot-edge-node",
   "version": "1.0.0",
-  "description": "Multi-port honeypot node for UnHarmd",
+  "description": "Multi-port honeypot node for LLMPot",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {

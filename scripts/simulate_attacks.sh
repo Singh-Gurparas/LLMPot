@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# UnHarmd Attack Simulation Script
+# LLMPot Attack Simulation Script
+# ---------------------------------------------
 # This script sends simulated attacks to the local honeypot edge nodes
 
 echo "============================================="
-echo "   UnHarmd Threat Intel - Attack Simulator"
+echo "   LLMPot Threat Intel - Attack Simulator"
 echo "============================================="
 
 # Ensure edge-node is running on these ports
@@ -45,5 +46,5 @@ else
 fi
 
 echo "============================================="
-echo "[+] Attack simulations dispatched to $HOST"
-echo "    Check the UnHarmd Dashboard for real-time analysis!"
+echo "[+] Attack simulations dispatched to localhost"
+echo "    Check the LLMPot Dashboard for real-time analysis!"

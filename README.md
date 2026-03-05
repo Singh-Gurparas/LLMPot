@@ -1,8 +1,8 @@
-# UnHarmd: AI-Powered Distributed Honeypot Platform
+# LLMPot: AI-Powered Distributed Honeypot Platform
 
-UnHarmd is a modular, scalable, and globally distributed honeypot system designed to capture, log, and analyze cybersecurity threats in real-time utilizing LLM-driven threat intelligence.
+LLMPot is a modular, scalable, and globally distributed honeypot system designed to capture, log, and analyze cybersecurity threats in real-time utilizing LLM-driven threat intelligence.
 
-![UnHarmd Dashboard Concept](https://via.placeholder.com/1200x600?text=UnHarmd+Real-Time+Threat+Intelligence)
+![LLMPot Dashboard Concept](https://via.placeholder.com/1200x600?text=LLMPot+Real-Time+Threat+Intelligence)
 
 ## Core Architecture and Component Flow
 
@@ -27,7 +27,7 @@ flowchart LR
 
 - **Session Replay:** Attack timelines are fully reconstructed, allowing analysts to step through individual Request -> Response pairs in real-time.
 - **Node Monitoring:** Edge node health checks, uptime tracking, and real-time status.
-- **Security Hardening:** The docker-compose network is isolated. The Node.js Edge container operates via a non-root `unharmd` user running read-only on unprivileged internal ports (dynamically mapped over Docker). It invokes Express rate-limiting to prevent DoS.
+- **Security Hardening:** The docker-compose network is isolated. The Node.js Edge container operates via a non-root `llmpot` user running read-only on unprivileged internal ports (dynamically mapped over Docker). It invokes Express rate-limiting to prevent DoS.
 - **Observability:** Centralized structured JSON logging output utilizing `winston` and `python-json-logger`.
 
 ### 1. Environment Configuration
@@ -42,7 +42,7 @@ GROQ_API_KEY=your_groq_api_key_here
 
 # Infrastructure
 REDIS_URL=redis://redis:6379
-DATABASE_URL=postgresql+asyncpg://unharmd_admin:unharmd_secret@postgres:5432/unharmd_db
+DATABASE_URL=postgresql+asyncpg://llmpot_admin:llmpot_secret@postgres:5432/llmpot_db
 
 # Edge Node
 NODE_REGION=local-dev
@@ -60,9 +60,9 @@ docker-compose up --build -d
 ### 3. Tail Observability Logs
 Verify the structured logs are functioning:
 ```bash
-docker logs unharmd-backend -f
+docker logs llmpot-backend -f
 # OR
-docker logs unharmd-edge-node -f
+docker logs llmpot-edge-node -f
 \`\`\`
 
 ### 3. Simulate Attacks

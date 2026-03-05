@@ -11,7 +11,7 @@ async function connectRedis() {
     console.log('Connected to Redis Event Stream');
 }
 
-const REDIS_CHANNEL = 'unharmd_events';
+const REDIS_CHANNEL = 'llmpot_events';
 
 // Identify this node
 const NODE_ID = process.env.NODE_ID || uuidv4();
@@ -25,7 +25,7 @@ async function publishEvent({ port, req, resData }) {
     }
 
     const attackerIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    
+
     // Normalize IPv4-mapped IPv6 addresses like ::ffff:127.0.0.1
     let cleanIp = attackerIp;
     if (typeof cleanIp === 'string' && cleanIp.includes('::ffff:')) {

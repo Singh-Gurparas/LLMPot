@@ -16,16 +16,16 @@ formatter = jsonlogger.JsonFormatter('%(asctime)s %(levelname)s %(name)s %(messa
 logHandler.setFormatter(formatter)
 logging.basicConfig(level=logging.INFO, handlers=[logHandler], force=True)
 
-logger = logging.getLogger("unharmd")
+logger = logging.getLogger("llmpot")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup background tasks, like the Redis consumer
-    logger.info("Starting up UnHarmd Backend...")
+    logger.info("Starting up LLMPot Backend...")
     redis_task = asyncio.create_task(ingest_redis_events())
     yield
     # Shutdown
-    logger.info("Shutting down UnHarmd Backend...")
+    logger.info("Shutting down HoneyGrid Backend...")
     redis_task.cancel()
     try:
         await redis_task
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="UnHarmd API",
+    title="HoneyGrid API",
     description="AI-Powered Distributed Honeypot Platform",
     version="1.0.0",
     lifespan=lifespan

@@ -4,11 +4,11 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # App Settings
-    PROJECT_NAME: str = "UnHarmd Integration Hub"
+    PROJECT_NAME: str = "LLMPot Integration Hub"
     DEBUG: bool = True
     
     # Storage
-    DATABASE_URL: str = "postgresql+asyncpg://unharmd_admin:unharmd_secret@postgres:5432/unharmd_db"
+    DATABASE_URL: str = "postgresql+asyncpg://llmpot_admin:llmpot_secret@postgres:5432/llmpot_db"
     REDIS_URL: str = "redis://redis:6379"
     
     # Intelligence

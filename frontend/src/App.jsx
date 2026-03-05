@@ -12,7 +12,7 @@ export default function App() {
                     <div className="max-w-[1600px] mx-auto px-8 h-16 flex items-center justify-between">
                         <div className="flex items-center space-x-3 text-white">
                             <Shield className="text-primary-500" size={28} />
-                            <span className="text-xl font-bold tracking-wide">UNHARMD</span>
+                            <span className="text-xl font-bold tracking-wide">LLMPOT</span>
                         </div>
                         <div className="text-xs font-mono text-gray-500">
                             SYSTEM TIME: {new Date().toISOString()}

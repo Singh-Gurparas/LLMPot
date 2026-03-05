@@ -3,11 +3,11 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: unharmd-postgres
+    container_name: llmpot-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-unharmd_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-unharmd_secret}
-      POSTGRES_DB: ${POSTGRES_DB:-unharmd_db}
+      POSTGRES_USER: ${POSTGRES_USER:-llmpot_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-llmpot_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-llmpot_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -17,7 +17,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: unharmd-redis
+    container_name: llmpot-redis
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -28,12 +28,12 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    container_name: unharmd-backend
+    container_name: llmpot-backend
     read_only: true
     env_file:
       - ../.env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-unharmd_admin}:${POSTGRES_PASSWORD:-unharmd_secret}@postgres:5432/${POSTGRES_DB:-unharmd_db}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-llmpot_admin}:${POSTGRES_PASSWORD:-llmpot_secret}@postgres:5432/${POSTGRES_DB:-llmpot_db}
       - REDIS_URL=redis://redis:6379
     ports:
       - "8000:8000"
@@ -49,7 +49,7 @@ services:
     build:
       context: ../edge-node
       dockerfile: Dockerfile
-    container_name: unharmd-edge-node
+    container_name: llmpot-edge-node
     read_only: true
     security_opt:
       - no-new-privileges:true
@@ -74,7 +74,7 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    container_name: unharmd-frontend
+    container_name: llmpot-frontend
     read_only: true
     ports:
       - "3000:80"
