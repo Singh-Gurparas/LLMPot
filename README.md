@@ -297,9 +297,5 @@ LLMPot/
 | GeoIP | MaxMind GeoLite2 + ip-api.com (ISP/ASN/proxy) |
 | Deployment | Docker Compose |
 
----
-
-## License
-
 MIT
 
