@@ -139,7 +139,7 @@ Searchable repository of extracted Indicators of Compromise: IPs, domains, URLs,
 
 ### Mitigation Rules
 
-![Mitigations](docs/screenshots/mitigations.png)
+![Mitigations](docs/screenshots/mitigation.png)
 
 Auto-generated defensive rules for every attacker. Click any row to expand: iptables, nftables, Fail2Ban filter, ModSecurity WAF rule, Suricata IDS rule, Sigma detection rule, and YARA signature — all ready to copy and deploy.
 
