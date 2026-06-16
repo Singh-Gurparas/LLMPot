@@ -6,6 +6,13 @@ import datetime
 
 from app.database.db import Base
 
+# Import V2 models so SQLAlchemy metadata includes them for create_all
+from app.models.v2 import (  # noqa: F401
+    AttackerProfile, Campaign, CampaignSession, SessionAnalysis,
+    MitreMapping, IOC, Prediction, MitigationRecommendation,
+    ThreatStory, ThreatReport, DeceptionMetric
+)
+
 class Node(Base):
     __tablename__ = "nodes"
 
@@ -13,9 +20,9 @@ class Node(Base):
     region = Column(String(100), nullable=False)
     ip = Column(String(45), nullable=False)
     status = Column(String(50), default="active")
-    last_seen = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    last_seen = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
     uptime_seconds = Column(BigInteger, default=0)
-    created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     sessions = relationship("Session", back_populates="node", cascade="all, delete-orphan")
 
@@ -26,11 +33,25 @@ class Session(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     node_id = Column(UUID(as_uuid=True), ForeignKey("nodes.id", ondelete="CASCADE"))
     attacker_ip = Column(String(45), nullable=False, index=True)
+
+    # GeoIP (from local MaxMind DB)
     attacker_geoip_country = Column(String(100))
     attacker_geoip_city = Column(String(100))
     attacker_geoip_lat = Column(Float)
     attacker_geoip_lon = Column(Float)
-    start_time = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    attacker_geoip_continent = Column(String(50))
+    attacker_geoip_timezone = Column(String(100))
+
+    # IP Intelligence (from ip-api.com enrichment)
+    attacker_isp = Column(String(255))
+    attacker_org = Column(String(255))
+    attacker_asn = Column(String(100))
+    attacker_is_proxy = Column(Boolean, default=False)
+    attacker_is_hosting = Column(Boolean, default=False)
+    attacker_is_mobile = Column(Boolean, default=False)
+    attacker_hostname = Column(String(255))
+
+    start_time = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
     end_time = Column(DateTime(timezone=True))
     is_active = Column(Boolean, default=True)
 
@@ -44,7 +65,7 @@ class SessionEvent(Base):
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     session_id = Column(UUID(as_uuid=True), ForeignKey("sessions.id", ondelete="CASCADE"), index=True)
-    event_time = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    event_time = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
     service_port = Column(Integer, nullable=False)
     request_method = Column(String(10))
     request_path = Column(Text)
@@ -67,7 +88,7 @@ class Attack(Base):
     endpoint = Column(Text, nullable=False)
     classification = Column(String(100), nullable=False, index=True)
     severity = Column(String(50), nullable=False, index=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     session = relationship("Session", back_populates="attacks")
     payload = relationship("Payload", back_populates="attack", uselist=False, cascade="all, delete-orphan")
@@ -92,6 +113,6 @@ class AttackReport(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     attack_id = Column(UUID(as_uuid=True), ForeignKey("attacks.id", ondelete="CASCADE"), unique=True)
     report_json = Column(JSONB, nullable=False)
-    generated_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    generated_at = Column(DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     attack = relationship("Attack", back_populates="report")

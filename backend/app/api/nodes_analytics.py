@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.database.db import get_db
 from app.models.all import Node, Attack, Session
 
-api_router = APIRouter(prefix="/api")
 nodes_router = APIRouter(prefix="/api/nodes", tags=["Nodes"])
 analytics_router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 
@@ -35,7 +34,7 @@ async def get_analytics_overview(db: AsyncSession = Depends(get_db)):
     nodes_count = await db.scalar(select(func.count(Node.id)).where(Node.status == 'active'))
     
     # Unique Attackers (last 24h)
-    yesterday = datetime.utcnow() - timedelta(days=1)
+    yesterday = datetime.now(timezone.utc) - timedelta(days=1)
     unique_ips = await db.scalar(
         select(func.count(func.distinct(Session.attacker_ip)))
         .where(Session.start_time >= yesterday)
@@ -97,5 +96,3 @@ async def get_analytics_overview(db: AsyncSession = Depends(get_db)):
         } for row in countries_res.all()]
     }
 
-api_router.include_router(nodes_router)
-api_router.include_router(analytics_router)

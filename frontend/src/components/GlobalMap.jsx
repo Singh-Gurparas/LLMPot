@@ -1,57 +1,136 @@
-import React from 'react';
-import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, Tooltip } from 'recharts';
+import React, { useState } from 'react';
+import {
+    ComposableMap,
+    Geographies,
+    Geography,
+    Marker,
+    ZoomableGroup
+} from 'react-simple-maps';
+
+const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 export default function GlobalMap({ mapData }) {
-    // A simplified map visualization using Recharts ScatterPlot for locations
-    // In a fully-blown prod app, you might use Leaflet or react-simple-maps.
-    // Here we map Lat/Lon to X/Y.
+    const [tooltip, setTooltip] = useState(null);
 
     if (!mapData || mapData.length === 0) {
         return (
-            <div className="glass-panel p-6 h-[400px] flex items-center justify-center text-gray-500">
-                No geolocation data available.
+            <div className="glass-panel p-6 h-[420px] flex flex-col items-center justify-center text-gray-500 space-y-2">
+                <div className="w-8 h-8 rounded-full border-2 border-gray-700 flex items-center justify-center">
+                    <span className="text-xs">0</span>
+                </div>
+                <p className="text-sm">No geolocation data yet</p>
+                <p className="text-xs text-gray-600">Attacker origins will appear here</p>
             </div>
         );
     }
 
-    const CustomTooltip = ({ active, payload }) => {
-        if (active && payload && payload.length) {
-            const data = payload[0].payload;
-            return (
-                <div className="bg-gray-900 border border-gray-700 p-3 rounded-lg shadow-xl text-sm">
-                    <p className="font-bold">{data.country}</p>
-                    <p className="text-gray-400">Attacks: {data.attacks}</p>
-                </div>
-            );
-        }
-        return null;
-    };
+    const totalAttacks = mapData.reduce((sum, p) => sum + (p.attacks || 1), 0);
 
     return (
         <div className="glass-panel p-6">
-            <h3 className="text-lg font-semibold mb-6">Global Attack Origins</h3>
-            <div className="h-[300px] w-full bg-blue-900/10 rounded-xl relative overflow-hidden">
-                {/* Simplified Map Background via CSS/SVG or just context */}
-                <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                        {/* Domain roughly maps to World Lat/Lon bounds */}
-                        <XAxis type="number" dataKey="lon" name="Longitude" domain={[-180, 180]} hide />
-                        <YAxis type="number" dataKey="lat" name="Latitude" domain={[-90, 90]} hide />
-                        <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-                        <Scatter name="Attacks" data={mapData} fill="#ef4444" shape="circle">
-                            {
-                                mapData.map((entry, index) => {
-                                    // Scale dot size by attacks count (capped)
-                                    const size = Math.min(100 + (entry.attacks * 10), 1000);
-                                    return <circle key={`cell-${index}`} r={Math.sqrt(size) / 2} opacity={0.7} className="animate-pulse" />
-                                })
-                            }
-                        </Scatter>
-                    </ScatterChart>
-                </ResponsiveContainer>
-                <div className="absolute bottom-4 left-4 text-xs text-gray-500 pointer-events-none">
-                    * Simplified Coordinate Map
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Global Attack Origins</h3>
+                <div className="flex items-center gap-3 text-xs text-gray-400">
+                    <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse" />
+                        {mapData.length} origin{mapData.length !== 1 ? 's' : ''}
+                    </span>
+                    <span className="text-gray-600">·</span>
+                    <span>{totalAttacks} total attacks</span>
                 </div>
+            </div>
+
+            <div
+                className="relative rounded-xl overflow-hidden border border-slate-800"
+                style={{ height: '340px', background: '#050e1f' }}
+            >
+                <ComposableMap
+                    projection="geoMercator"
+                    projectionConfig={{ scale: 135, center: [10, 20] }}
+                    style={{ width: '100%', height: '100%' }}
+                >
+                    <ZoomableGroup zoom={1} minZoom={0.7} maxZoom={5}>
+                        <Geographies geography={GEO_URL}>
+                            {({ geographies }) =>
+                                geographies.map(geo => (
+                                    <Geography
+                                        key={geo.rsmKey}
+                                        geography={geo}
+                                        fill="#0f2644"
+                                        stroke="#1a3a64"
+                                        strokeWidth={0.4}
+                                        style={{
+                                            default: { outline: 'none' },
+                                            hover: { fill: '#1a3a64', outline: 'none' },
+                                            pressed: { outline: 'none' },
+                                        }}
+                                    />
+                                ))
+                            }
+                        </Geographies>
+
+                        {mapData.map((point, i) => {
+                            if (point.lat == null || point.lon == null) return null;
+                            const r = Math.max(3.5, Math.min(11, 3.5 + Math.sqrt(point.attacks || 1) * 2.2));
+                            return (
+                                <Marker
+                                    key={`marker-${i}`}
+                                    coordinates={[point.lon, point.lat]}
+                                    onMouseEnter={() => setTooltip(point)}
+                                    onMouseLeave={() => setTooltip(null)}
+                                >
+                                    {/* Glow ring */}
+                                    <circle r={r * 2.4} fill="#ef4444" fillOpacity={0.08} />
+                                    {/* Outer pulse ring */}
+                                    <circle r={r * 1.5} fill="#ef4444" fillOpacity={0.18} />
+                                    {/* Core dot */}
+                                    <circle
+                                        r={r}
+                                        fill="#ef4444"
+                                        fillOpacity={0.92}
+                                        stroke="#ff6b6b"
+                                        strokeWidth={0.8}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                </Marker>
+                            );
+                        })}
+                    </ZoomableGroup>
+                </ComposableMap>
+
+                {/* Tooltip overlay */}
+                {tooltip && (
+                    <div className="absolute top-3 right-3 bg-gray-900/95 border border-gray-700 rounded-lg px-3 py-2 text-sm shadow-xl pointer-events-none">
+                        <p className="font-semibold text-white">{tooltip.country}</p>
+                        <p className="text-red-400 text-xs mt-0.5">{tooltip.attacks} attack{tooltip.attacks !== 1 ? 's' : ''}</p>
+                        {tooltip.lat && (
+                            <p className="text-gray-500 text-xs font-mono mt-0.5">
+                                {tooltip.lat.toFixed(2)}, {tooltip.lon.toFixed(2)}
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                {/* Zoom hint */}
+                <div className="absolute bottom-2.5 left-3 text-xs text-gray-600 pointer-events-none select-none">
+                    Scroll to zoom · Drag to pan
+                </div>
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-6 mt-3 text-xs text-gray-500">
+                <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500/90 inline-block" />
+                    Attacker origin (dot size = volume)
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full border border-red-500/30 inline-block" />
+                    Low activity
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-red-500/60 inline-block" />
+                    High activity
+                </span>
             </div>
         </div>
     );

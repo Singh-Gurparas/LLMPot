@@ -1,4 +1,4 @@
--- Init DB Schema for UnHarmd
+-- Init DB Schema for LLMPot
 
 CREATE TABLE IF NOT EXISTS nodes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -14,10 +14,24 @@ CREATE TABLE IF NOT EXISTS sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     node_id UUID REFERENCES nodes(id) ON DELETE CASCADE,
     attacker_ip VARCHAR(45) NOT NULL,
+
+    -- GeoIP (MaxMind local DB)
     attacker_geoip_country VARCHAR(100),
     attacker_geoip_city VARCHAR(100),
     attacker_geoip_lat DOUBLE PRECISION,
     attacker_geoip_lon DOUBLE PRECISION,
+    attacker_geoip_continent VARCHAR(50),
+    attacker_geoip_timezone VARCHAR(100),
+
+    -- IP Intelligence (ip-api.com enrichment)
+    attacker_isp VARCHAR(255),
+    attacker_org VARCHAR(255),
+    attacker_asn VARCHAR(100),
+    attacker_is_proxy BOOLEAN DEFAULT FALSE,
+    attacker_is_hosting BOOLEAN DEFAULT FALSE,
+    attacker_is_mobile BOOLEAN DEFAULT FALSE,
+    attacker_hostname VARCHAR(255),
+
     start_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     end_time TIMESTAMP WITH TIME ZONE,
     is_active BOOLEAN DEFAULT TRUE
@@ -63,8 +77,11 @@ CREATE TABLE IF NOT EXISTS attack_reports (
     generated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexes for performance
+-- Indexes
 CREATE INDEX idx_sessions_attacker_ip ON sessions(attacker_ip);
+CREATE INDEX idx_sessions_country ON sessions(attacker_geoip_country);
+CREATE INDEX idx_sessions_is_proxy ON sessions(attacker_is_proxy);
+CREATE INDEX idx_sessions_is_hosting ON sessions(attacker_is_hosting);
 CREATE INDEX idx_session_events_session_id ON session_events(session_id);
 CREATE INDEX idx_attacks_classification ON attacks(classification);
 CREATE INDEX idx_attacks_severity ON attacks(severity);

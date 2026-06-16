@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List
+import uuid
 
 from app.database.db import get_db
 from app.models.all import Session, SessionEvent, Node
@@ -10,8 +10,13 @@ router = APIRouter(prefix="/api/sessions", tags=["Sessions"])
 
 @router.get("/{session_id}/replay")
 async def get_session_replay(session_id: str, db: AsyncSession = Depends(get_db)):
+    try:
+        session_uuid = uuid.UUID(session_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid session_id format")
+        
     # Verify session exists
-    session_stmt = select(Session).where(Session.id == session_id)
+    session_stmt = select(Session).where(Session.id == session_uuid)
     session_result = await db.execute(session_stmt)
     session = session_result.scalar_one_or_none()
     

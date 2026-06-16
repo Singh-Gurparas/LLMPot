@@ -12,6 +12,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-llmpot_admin} -d ${POSTGRES_DB:-llmpot_db}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - internal_net
 
@@ -21,6 +26,11 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - internal_net
 
@@ -30,6 +40,8 @@ services:
       dockerfile: Dockerfile
     container_name: llmpot-backend
     read_only: true
+    tmpfs:
+      - /tmp
     env_file:
       - ../.env
     environment:
@@ -38,9 +50,16 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - internal_net
       - api_net
@@ -51,6 +70,8 @@ services:
       dockerfile: Dockerfile
     container_name: llmpot-edge-node
     read_only: true
+    tmpfs:
+      - /tmp
     security_opt:
       - no-new-privileges:true
     env_file:
@@ -62,10 +83,11 @@ services:
     ports:
       - "80:8000"
       - "443:8443"
-      - "8080:8080"
+      - "8081:8080"
       - "9200:9200"
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - internal_net
@@ -76,6 +98,9 @@ services:
       dockerfile: Dockerfile
     container_name: llmpot-frontend
     read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
     ports:
       - "3000:80"
     depends_on:
@@ -87,7 +112,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-
 
 networks:
   internal_net:
