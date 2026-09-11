@@ -89,7 +89,7 @@ Every completed session with attacks triggers a full 16-step analysis:
 
 ### Attacker Profiles
 
-![Attacker Profiles](docs/screenshots/attacker-profiles.png)
+![Attacker Profiles](docs/screenshots/profiles.png)
 
 Persistent dossiers built from all sessions per attacker IP. ISP and ASN enrichment via ip-api.com. Skill level, threat score, session count, and threat actor attribution displayed at a glance.
 
@@ -108,6 +108,7 @@ Automatic campaign detection by the LLM. Sessions sharing ASN, attack type, and 
 ### Threat Reports
 
 ![Threat Reports](docs/screenshots/threat-reports.png)
+![](docs/screenshots/threat-reports2.png)
 
 Auto-generated full intelligence reports per session. Each report includes MITRE mapping table, IOC list, mitigation rules, and a threat story narrative. Downloadable as Markdown.
 
@@ -140,6 +141,7 @@ Searchable repository of extracted Indicators of Compromise: IPs, domains, URLs,
 ### Mitigation Rules
 
 ![Mitigations](docs/screenshots/mitigations.png)
+![](docs/screenshots/mitigations2.png)
 
 Auto-generated defensive rules for every attacker. Click any row to expand: iptables, nftables, Fail2Ban filter, ModSecurity WAF rule, Suricata IDS rule, Sigma detection rule, and YARA signature — all ready to copy and deploy.
 
