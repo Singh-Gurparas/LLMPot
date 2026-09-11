@@ -1,8 +1,8 @@
-# LLMPot v2 — Autonomous AI Cyber Threat Intelligence Platform
+# LLMPot — Autonomous AI Cyber Threat Intelligence Platform
 
 > **"What if we let them in?"**
 >
-> Traditional honeypots log attacker activity using static rules and predefined responses. LLMPot v2 goes further: it lets attackers in, watches every move, and uses a large language model to synthesize what static rules can never produce — attacker intent, tool fingerprints, behavioral profiles, MITRE ATT&CK mappings, and predictive intelligence. Then it writes the firewall rules, Sigma detections, YARA signatures, and threat reports automatically.
+> Traditional honeypots log attacker activity using static rules and predefined responses. LLMPot goes further: it lets attackers in, watches every move, and uses a large language model to synthesize what static rules can never produce — attacker intent, tool fingerprints, behavioral profiles, MITRE ATT&CK mappings, and predictive intelligence. Then it writes the firewall rules, Sigma detections, YARA signatures, and threat reports automatically.
 
 ---
 
@@ -14,7 +14,7 @@ Real-time global attack map, live threat feed, critical threat counter, and acti
 
 ---
 
-## What LLMPot v2 Does
+## What LLMPot Does
 
 The platform answers questions static rules cannot:
 
@@ -161,7 +161,7 @@ Tracks honeypot effectiveness per fake service. AI generates specific deception 
 | `session_events` | All HTTP requests within a session |
 | `attacks` | Classified attack events |
 | `attack_reports` | Per-attack LLM reports (V1) |
-| `session_analyses` | Full V2 LLM analysis per session |
+| `session_analyses` | Full LLM analysis per session |
 | `attacker_profiles` | Persistent per-IP dossiers |
 | `campaigns` | Correlated attack campaigns |
 | `mitre_mappings` | MITRE ATT&CK technique records |
@@ -205,9 +205,9 @@ cd infrastructure
 docker compose up --build -d
 ```
 
-### 3. Apply V2 Database Migration
+### 3. Apply Database Migration
 
-On first run, apply the V2 schema (adds 11 intelligence tables):
+On first run, apply the schema (adds 11 intelligence tables):
 
 ```bash
 docker exec -i llmpot-postgres psql -U llmpot_admin -d llmpot_db \
@@ -256,7 +256,7 @@ http://localhost
 LLMPot/
 ├── backend/
 │   └── app/
-│       ├── api/           # REST endpoints (9 V2 routers + 4 V1 routers)
+│       ├── api/           # REST endpoints (9 routers + 4 V1 routers)
 │       ├── models/        # SQLAlchemy ORM (v1.py + v2.py)
 │       ├── services/
 │       │   ├── threat_intelligence_service.py  # 16-step pipeline
@@ -274,7 +274,7 @@ LLMPot/
 ├── infrastructure/
 │   ├── docker-compose.yml
 │   ├── init.sql           # V1 schema
-│   └── v2_migration.sql   # V2 schema (11 new tables)
+│   └── v2_migration.sql   # schema (11 new tables)
 ├── scripts/
 │   └── simulate_attacks.sh
 └── docs/
