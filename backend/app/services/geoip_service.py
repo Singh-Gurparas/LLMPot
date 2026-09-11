@@ -37,11 +37,22 @@ class GeoIPService:
         if not os.path.exists(self.db_path):
             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
             logger.info(f"Downloading GeoLite2-City database to {self.db_path}...")
-            url = "https://git.io/GeoLite2-City.mmdb"
-            try:
-                urllib.request.urlretrieve(url, self.db_path)
-            except Exception as e:
-                logger.warning(f"Could not download GeoIP db: {e}. GeoIP enrichment skipped.")
+            # git.io source is dead; use P3TERX mirror (GitHub release, refreshed monthly)
+            urls = [
+                "https://github.com/P3TERX/GeoLite.mmdb/releases/latest/download/GeoLite2-City.mmdb",
+                "https://git.io/GeoLite2-City.mmdb",  # legacy fallback
+            ]
+            for url in urls:
+                try:
+                    # socket timeout: urlretrieve alone has no timeout — would block event loop
+                    import socket
+                    socket.setdefaulttimeout(30)
+                    urllib.request.urlretrieve(url, self.db_path)
+                    logger.info(f"GeoIP database downloaded from {url}")
+                    return
+                except Exception as e:
+                    logger.warning(f"GeoIP download failed from {url}: {e}")
+            logger.warning("Could not download GeoIP db from any source. GeoIP enrichment skipped.")
 
     def lookup(self, ip_address: str) -> dict:
         self._init_reader()

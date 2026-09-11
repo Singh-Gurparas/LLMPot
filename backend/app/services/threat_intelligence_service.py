@@ -25,7 +25,7 @@ from app.models.all import Session, SessionEvent, Attack, AttackReport
 from app.models.v2 import (
     SessionAnalysis, MitreMapping, IOC, Prediction,
     MitigationRecommendation, ThreatStory, ThreatReport,
-    AttackerProfile, Campaign, CampaignSession
+    AttackerProfile, Campaign, CampaignSession, DeceptionMetric
 )
 from app.services.llm_service import llm_service
 
@@ -337,9 +337,49 @@ async def _run_pipeline(session_id: uuid.UUID) -> Optional[SessionAnalysis]:
         # ── 15. Update AttackerProfile ────────────────────────────────
         await _update_attacker_profile(db, session, raw, analysis)
 
+        # ── 15.5 Record deception effectiveness metrics ──────────────
+        deception_eff = raw.get("deception_effectiveness") or {}
+        if deception_eff:
+            # Derive which fake service(s) the attacker engaged with from the
+            # session's classified attacks (most severe one is the target).
+            primary = max(
+                attacks_data,
+                key=lambda a: {"critical": 4, "high": 3, "medium": 2, "low": 1}.get(
+                    str(a.get("severity", "")).lower(), 0
+                ),
+                default=None,
+            )
+            target_endpoint = (primary or {}).get("endpoint") or session.attacker_geoip_city or "unknown"
+            service = (primary or {}).get("classification") or "unknown-service"
+            engagement_quality = (deception_eff.get("engagement_quality") or "Low").lower()
+            depth = {"low": 1, "medium": 5, "high": 9}.get(engagement_quality, 1)
+            detected = str(deception_eff.get("honeypot_detected", "unknown")).lower() == "likely"
+            db.add(DeceptionMetric(
+                session_id=session_id,
+                fake_service=service,
+                fake_path=target_endpoint,
+                fake_credential_type=deception_eff.get("intelligence_value", "")[:100] or None,
+                attacker_engaged=not detected,
+                engagement_depth=depth,
+                intel_extracted=deception_eff.get("intelligence_value"),
+                effectiveness_score=round(max(0.0, min(1.0, float(raw.get("confidence", 0.5)) * (0.5 if detected else 1.0))), 3),
+            ))
+
         # ── 16. Campaign detection ────────────────────────────────────
-        if campaign_info.get("is_coordinated_campaign") and float(campaign_info.get("confidence", 0)) >= 0.5:
-            await _link_or_create_campaign(db, session_id, session, campaign_info, analysis)
+        # Every analyzed session with a positive-confidence assessment joins a
+        # campaign so the Campaign Explorer always has activity. The LLM's
+        # campaign_name (e.g. "Generic Log4Shell Exploit Scan") groups similar
+        # attackers; coordinated campaigns additionally get flagged as active.
+        campaign_conf = float(campaign_info.get("confidence", 0) or 0)
+        campaign_name = campaign_info.get("campaign_name") or ""
+        is_tracked = (
+            campaign_info.get("is_coordinated_campaign")
+            or (campaign_conf >= 0.5 and campaign_name and campaign_name.lower() not in
+                ("none identified", "none", "none (opportunistic scanning)", "unknown"))
+        )
+        if is_tracked and campaign_conf > 0:
+            session_attack_types = sorted({a.get("classification") for a in attacks_data if a.get("classification")})
+            await _link_or_create_campaign(db, session_id, session, campaign_info, analysis, session_attack_types)
 
         await db.commit()
         logger.info(f"Session {session_id} analyzed. Threat score: {raw.get('threat_score')}")
@@ -372,6 +412,10 @@ async def _update_attacker_profile(db: AsyncSession, session: Session, raw: dict
         profile.total_sessions += 1
 
     profile.last_seen = now
+    # Backfill geo fields if they were missing when the profile was created
+    profile.country = profile.country or session.attacker_geoip_country
+    profile.isp = profile.isp or session.attacker_isp
+    profile.asn = profile.asn or session.attacker_asn
     profile.skill_level = attacker_prof.get("skill_level") or profile.skill_level
     profile.primary_motivation = attacker_prof.get("primary_motivation") or profile.primary_motivation
     profile.opsec_quality = attacker_prof.get("opsec_quality") or profile.opsec_quality
@@ -405,11 +449,12 @@ async def _link_or_create_campaign(
     session_id: uuid.UUID,
     session: Session,
     campaign_info: dict,
-    analysis: SessionAnalysis
+    analysis: SessionAnalysis,
+    session_attack_types: list = None,
 ):
     campaign_name = campaign_info.get("campaign_name") or f"Campaign-{session.attacker_asn or 'Unknown'}"
 
-    # Try to match existing campaign by ASN
+    # Try to match existing campaign by name
     existing = await db.execute(
         select(Campaign).where(Campaign.name == campaign_name)
     )
@@ -427,6 +472,7 @@ async def _link_or_create_campaign(
             confidence=float(campaign_info.get("confidence", 0)),
             total_sessions=0,
             total_attackers=0,
+            status="active" if campaign_info.get("is_coordinated_campaign") else "tracked",
             first_seen=now,
         )
         db.add(campaign)
@@ -434,8 +480,31 @@ async def _link_or_create_campaign(
     else:
         campaign.last_seen = now
         campaign.updated_at = now
+        if campaign_info.get("is_coordinated_campaign"):
+            campaign.status = "active"
 
-    campaign.total_sessions += 1
+    # Track attack types contributing to this campaign
+    if session_attack_types:
+        existing_types = set(campaign.attack_types or [])
+        campaign.attack_types = sorted(existing_types | set(session_attack_types))
+
+    # Count sessions/attackers accurately (re-analysis safe)
+    link_exists = await db.execute(
+        select(CampaignSession).where(
+            CampaignSession.campaign_id == campaign.id,
+            CampaignSession.session_id == session_id
+        )
+    )
+    already_linked = link_exists.scalar_one_or_none() is not None
+    if not already_linked:
+        campaign.total_sessions += 1
+        # Distinct attacker IP for this campaign
+        attackers_res = await db.execute(
+            select(func.count(func.distinct(Session.attacker_ip)))
+            .join(CampaignSession, CampaignSession.session_id == Session.id)
+            .where(CampaignSession.campaign_id == campaign.id)
+        )
+        campaign.total_attackers = attackers_res.scalar() or 1
 
     # Link session to campaign (skip duplicate)
     existing_link = await db.execute(

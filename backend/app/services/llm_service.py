@@ -25,7 +25,7 @@ class LLMProvider(ABC):
 class GroqProvider(LLMProvider):
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.model = "llama-3.3-70b-versatile"
+        self.model = "openai/gpt-oss-120b"
         try:
             from groq import AsyncGroq
             self.client = AsyncGroq(api_key=api_key)

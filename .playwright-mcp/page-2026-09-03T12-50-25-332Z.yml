@@ -1,0 +1,214 @@
+- generic [ref=f44e1]:
+  - generic [ref=f44e2]:
+    - link "Insights on the state of AI agents from 800+ builders and leaders. Download your copy" [ref=f44e6] [cursor=pointer]:
+      - /url: https://www.docker.com/resources/the-state-of-agentic-ai-white-paper/
+    - generic [ref=f44e9] [cursor=pointer]: ✕
+  - banner [ref=f44e10]:
+    - generic [ref=f44e11]:
+      - generic [ref=f44e12]:
+        - link "Docker Docs home page" [ref=f44e14] [cursor=pointer]:
+          - /url: https://docs.docker.com/
+        - navigation [ref=f44e20]:
+          - list [ref=f44e21]:
+            - listitem [ref=f44e22]:
+              - link "Get started" [ref=f44e23] [cursor=pointer]:
+                - /url: /get-started/
+            - listitem [ref=f44e24]:
+              - link "Guides" [ref=f44e25] [cursor=pointer]:
+                - /url: /guides/
+            - listitem [ref=f44e26]:
+              - link "Manuals" [ref=f44e27] [cursor=pointer]:
+                - /url: /manuals/
+            - listitem [ref=f44e28]:
+              - link "Reference" [ref=f44e29] [cursor=pointer]:
+                - /url: /reference/
+      - generic [ref=f44e31]:
+        - button "Ask Gordon, AI assistant" [ref=f44e33] [cursor=pointer]
+        - button "Search" [ref=f44e44] [cursor=pointer]
+        - button "Theme switch" [ref=f44e48] [cursor=pointer]
+  - main [ref=f44e53]:
+    - navigation [ref=f44e56]:
+      - list [ref=f44e57]:
+        - listitem [ref=f44e58]:
+          - link "Get Docker" [ref=f44e59] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/get-docker/
+        - listitem [ref=f44e60]:
+          - link "What is Docker?" [ref=f44e61] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/docker-overview/
+        - listitem [ref=f44e62]:
+          - generic [ref=f44e63]:
+            - link "Introduction" [ref=f44e65] [cursor=pointer]:
+              - /url: https://docs.docker.com/get-started/introduction/
+            - button [ref=f44e66]
+          - list [ref=f44e70]:
+            - listitem [ref=f44e71]:
+              - link "Get Docker Desktop" [ref=f44e72] [cursor=pointer]:
+                - /url: https://docs.docker.com/get-started/introduction/get-docker-desktop/
+            - listitem [ref=f44e73]:
+              - link "Develop with containers" [ref=f44e74] [cursor=pointer]:
+                - /url: https://docs.docker.com/get-started/introduction/develop-with-containers/
+            - listitem [ref=f44e75]:
+              - link "Build and push your first image" [ref=f44e76] [cursor=pointer]:
+                - /url: https://docs.docker.com/get-started/introduction/build-and-push-first-image/
+            - listitem [ref=f44e77]:
+              - link "What's next" [ref=f44e78] [cursor=pointer]:
+                - /url: https://docs.docker.com/get-started/introduction/whats-next/
+        - listitem [ref=f44e79]:
+          - generic [ref=f44e80]:
+            - button "Docker concepts" [ref=f44e82]
+            - button [ref=f44e83]
+        - listitem [ref=f44e87]:
+          - link "Educational resources" [ref=f44e88] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/resources/
+    - article [ref=f44e92]:
+      - navigation [ref=f44e93]:
+        - link "Home" [ref=f44e94] [cursor=pointer]:
+          - /url: https://docs.docker.com/
+        - generic [ref=f44e95]: /
+        - link "Get started" [ref=f44e96] [cursor=pointer]:
+          - /url: https://docs.docker.com/get-started/
+        - generic [ref=f44e97]: /
+        - generic [ref=f44e98]: Introduction
+      - heading "Introduction" [level=1] [ref=f44e99]
+      - generic [ref=f44e100]:
+        - generic [ref=f44e101]:
+          - generic [ref=f44e102]: Table of contents
+          - navigation [ref=f44e103]:
+            - list [ref=f44e104]:
+              - listitem [ref=f44e105]:
+                - link "About this series" [ref=f44e106] [cursor=pointer]:
+                  - /url: "#about-this-series"
+              - listitem [ref=f44e107]:
+                - link "What you'll learn" [ref=f44e108] [cursor=pointer]:
+                  - /url: "#what-youll-learn"
+        - separator [ref=f44e109]
+      - generic [ref=f44e110]: Embark on a comprehensive learning path to understand Docker and containerization, beginning with foundational concepts and installation procedures. Progress through hands-on exercises that cover essential Docker commands, image creation, and container orchestration.
+      - generic [ref=f44e112]:
+        - generic [ref=f44e113]:
+          - strong [ref=f44e115]: Skill level
+          - generic [ref=f44e116]: Beginner
+        - generic [ref=f44e117]:
+          - strong [ref=f44e119]: Time to complete
+          - generic [ref=f44e120]: 15 minutes
+        - generic [ref=f44e121]:
+          - strong [ref=f44e123]: Prerequisites
+          - generic [ref=f44e124]: None
+      - heading [level=2] [ref=f44e125]:
+        - link "About this series" [ref=f44e126] [cursor=pointer]:
+          - /url: "#about-this-series"
+      - paragraph [ref=f44e127]: In this guide series, you will gain hands-on experience with Docker, starting with installing and setting up Docker Desktop on your local machine. You will learn how to run your first container, understanding the basics of containerization and its benefits. This series guides you through building your first Docker image, providing insights into creating efficient and reusable images. Finally, you will explore how to publish your image on Docker Hub, enabling you to share your work with the broader community and leverage Docker's powerful ecosystem for collaborative development and deployment.
+      - heading [level=2] [ref=f44e128]:
+        - link "What you'll learn" [ref=f44e129] [cursor=pointer]:
+          - /url: "#what-youll-learn"
+      - list [ref=f44e130]:
+        - listitem [ref=f44e131]: Set up Docker Desktop
+        - listitem [ref=f44e132]: Run your first container
+        - listitem [ref=f44e133]: Build your first image
+        - listitem [ref=f44e134]: Publish your image on Docker Hub
+      - heading [level=2] [ref=f44e135]:
+        - link "Modules" [ref=f44e136] [cursor=pointer]:
+          - /url: "#modules"
+      - list [ref=f44e137]:
+        - listitem [ref=f44e138]:
+          - link "Get Docker Desktop" [ref=f44e139] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/introduction/get-docker-desktop/
+          - paragraph [ref=f44e140]: This concept page will teach you download Docker Desktop and install it on Windows, Mac, and Linux
+        - listitem [ref=f44e141]:
+          - link "Develop with containers" [ref=f44e142] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/introduction/develop-with-containers/
+          - paragraph [ref=f44e143]: This concept page will teach you how to develop with containers
+        - listitem [ref=f44e144]:
+          - link "Build and push your first image" [ref=f44e145] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/introduction/build-and-push-first-image/
+          - paragraph [ref=f44e146]: This concept page will teach you how to build and push your first image
+        - listitem [ref=f44e147]:
+          - link "What's next" [ref=f44e148] [cursor=pointer]:
+            - /url: https://docs.docker.com/get-started/introduction/whats-next/
+          - paragraph [ref=f44e149]: Explore step-by-step guides to help you understand core Docker concepts, building images, and running containers.
+  - contentinfo [ref=f44e150]:
+    - generic [ref=f44e151]:
+      - generic [ref=f44e152]:
+        - link "LinkedIn" [ref=f44e153] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/docker
+        - link "Twitter" [ref=f44e158] [cursor=pointer]:
+          - /url: https://x.com/docker/
+        - link "Facebook" [ref=f44e163] [cursor=pointer]:
+          - /url: https://www.facebook.com/docker.run
+        - link "YouTube" [ref=f44e168] [cursor=pointer]:
+          - /url: http://www.youtube.com/user/dockerrun
+        - link "Instagram" [ref=f44e173] [cursor=pointer]:
+          - /url: https://www.instagram.com/dockerinc/
+      - generic [ref=f44e178]:
+        - link "Product offerings" [ref=f44e179] [cursor=pointer]:
+          - /url: https://www.docker.com/
+        - link "Pricing" [ref=f44e180] [cursor=pointer]:
+          - /url: https://www.docker.com/pricing?ref=Docs&refAction=DocsFooter
+        - link "About us" [ref=f44e181] [cursor=pointer]:
+          - /url: https://www.docker.com/company/
+        - link "llms.txt" [ref=f44e182] [cursor=pointer]:
+          - /url: /llms.txt
+        - link "llms-full.txt" [ref=f44e183] [cursor=pointer]:
+          - /url: /llms-full.txt
+      - generic [ref=f44e184]:
+        - button "Cookies Settings" [ref=f44e185] [cursor=pointer]
+        - generic [ref=f44e186]: "|"
+        - link "Terms of Use" [ref=f44e187] [cursor=pointer]:
+          - /url: https://www.docker.com/legal/docker-terms-use/
+        - generic [ref=f44e188]: "|"
+        - link "Status" [ref=f44e189] [cursor=pointer]:
+          - /url: https://www.dockerstatus.com/
+        - generic [ref=f44e190]: "|"
+        - link "Legal" [ref=f44e191] [cursor=pointer]:
+          - /url: https://www.docker.com/legal
+    - generic [ref=f44e192]: Copyright © 2013-2026 Docker Inc. All rights reserved.
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "Give feedback - Show survey" [ref=f44e193] [cursor=pointer]:
+                - generic [ref=f44e197]: Give feedback
+              - region [aria-hidden]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - group:
+                            - generic:
+                              - heading: Was this page useful?
+                              - generic: Select an option from 1 to 5, with 1 being Hate and 5 being Love
+                              - radiogroup:
+                                - generic:
+                                  - generic:
+                                    - radio
+                                  - generic:
+                                    - radio
+                                  - generic:
+                                    - radio
+                                  - generic:
+                                    - radio
+                                  - generic:
+                                    - radio
+                                - generic:
+                                  - generic [aria-hidden]: Hate
+                                  - generic [aria-hidden]: Love
+                            - generic:
+                              - generic:
+                                - button [disabled]: Next
+  - region "Cookie banner" [ref=f44e198]:
+    - alertdialog "Privacy" [ref=f44e199]:
+      - generic [ref=f44e201]:
+        - generic [ref=f44e202]: By clicking “Accept All Cookies”, you agree to the storing of cookies on your device to enhance site navigation, analyze site usage, and assist in our marketing efforts.
+        - generic [ref=f44e206]:
+          - button "Cookies Settings" [ref=f44e207] [cursor=pointer]
+          - button "Reject All" [ref=f44e208] [cursor=pointer]
+          - button "Accept All Cookies" [ref=f44e209] [cursor=pointer]
+      - button "Close" [ref=f44e211] [cursor=pointer]
+  - generic:
+    - status [ref=f44e212]
+    - status [ref=f44e213]
+    - status [ref=f44e214]
+    - status [ref=f44e215]
+  - iframe

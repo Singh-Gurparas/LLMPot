@@ -18,7 +18,15 @@ async def get_attacks(
     severity: Optional[str] = None,
     db: AsyncSession = Depends(get_db)
 ):
-    stmt = select(Attack).order_by(desc(Attack.created_at)).offset(skip).limit(limit)
+    # Include lightweight origin context for live visualizations without changing
+    # the existing attack-detail workflow.
+    stmt = (
+        select(Attack, Session)
+        .outerjoin(Session, Attack.session_id == Session.id)
+        .order_by(desc(Attack.created_at))
+        .offset(skip)
+        .limit(limit)
+    )
 
     if classification:
         stmt = stmt.where(Attack.classification == classification)
@@ -26,7 +34,7 @@ async def get_attacks(
         stmt = stmt.where(Attack.severity == severity)
 
     result = await db.execute(stmt)
-    attacks = result.scalars().all()
+    attacks = result.all()
 
     return [{
         "id": str(a.id),
@@ -35,8 +43,12 @@ async def get_attacks(
         "endpoint": a.endpoint,
         "classification": a.classification,
         "severity": a.severity,
-        "created_at": a.created_at
-    } for a in attacks]
+        "created_at": a.created_at,
+        "attacker_ip": session.attacker_ip if session else None,
+        "country": session.attacker_geoip_country if session else None,
+        "lat": session.attacker_geoip_lat if session else None,
+        "lon": session.attacker_geoip_lon if session else None,
+    } for a, session in attacks]
 
 
 @router.get("/{attack_id}")

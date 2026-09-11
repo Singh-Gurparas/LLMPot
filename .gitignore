@@ -21,3 +21,7 @@ build/
 
 # OS
 .DS_Store
+
+# Local project files
+img/
+PROJECT_EXPLANATION.md

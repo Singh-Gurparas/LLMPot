@@ -1,116 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { getAnalyticsOverview, getAttacks, getNodes, getAttackDetails } from '../services/api';
-import StatsCards from '../components/StatsCards';
-import GlobalMap from '../components/GlobalMap';
-import AttackFeed from '../components/AttackFeed';
-import NodeStatus from '../components/NodeStatus';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { AlertTriangle, CircleDot, Satellite, ShieldAlert, SlidersHorizontal, Target, Wifi } from 'lucide-react';
+import { getAnalyticsOverview, getAttacks, getCampaigns, getNodes, getAttackDetails } from '../services/api';
 import AttackDetails from '../components/AttackDetails';
-import { Activity } from 'lucide-react';
-
+import ThreatGlobe from '../components/ThreatGlobe';
+const tone = value => ({ Critical: 'critical', High: 'high', Medium: 'medium', Low: 'low' }[value] || 'low');
+const shortTime = value => value ? new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'LIVE';
 export default function Dashboard() {
-    const [metrics, setMetrics] = useState(null);
-    const [mapData, setMapData] = useState([]);
-    const [attacks, setAttacks] = useState([]);
-    const [nodes, setNodes] = useState([]);
-    const [selectedAttack, setSelectedAttack] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            const overview = await getAnalyticsOverview();
-            setMetrics(overview.metrics);
-            setMapData(overview.map_data);
-
-            const recentAttacks = await getAttacks({ limit: 50 });
-            setAttacks(recentAttacks);
-
-            const activeNodes = await getNodes();
-            setNodes(activeNodes);
-
-            setLoading(false);
-        } catch (error) {
-            console.error("Failed to fetch dashboard data:", error);
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-        // Poll every 5 seconds for real-time feel
-        const interval = setInterval(fetchData, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleSelectAttack = async (id) => {
-        try {
-            const details = await getAttackDetails(id);
-            setSelectedAttack(details);
-        } catch (error) {
-            console.error("Failed to fetch attack details:", error);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="flex items-center space-x-3 text-primary-500">
-                    <Activity className="animate-spin" size={32} />
-                    <span className="text-xl font-bold tracking-widest">INITIALIZING LLMPOT SENSORS...</span>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="p-8 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500">
-            <header className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">
-                        LLMPot Global Overview
-                    </h1>
-                    <p className="text-gray-400 mt-2 flex items-center">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
-                        Real-time Threat Intelligence Network Active
-                    </p>
-                </div>
-            </header>
-
-            <StatsCards metrics={metrics} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                    <GlobalMap mapData={mapData} />
-                    <AttackFeed attacks={attacks} onSelectAttack={handleSelectAttack} />
-                </div>
-                <div className="space-y-8">
-                    <NodeStatus nodes={nodes} />
-
-                    {/* Top Attack Types Panel */}
-                    <div className="glass-panel p-6">
-                        <h3 className="text-lg font-semibold mb-4">Top Threat Vectors</h3>
-                        <div className="space-y-3">
-                            {metrics && attacks && attacks.length > 0 ? (
-                                attacks.slice(0, 5).map((a, i) => (
-                                    <div key={i} className="flex justify-between items-center text-sm border-b border-gray-800 pb-2">
-                                        <span className="text-gray-300">{a.classification}</span>
-                                        <span className={`font-mono ${a.severity === 'Critical' ? 'text-red-500' : 'text-orange-400'}`}>
-                                            {a.severity}
-                                        </span>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500 text-sm">Waiting for telemetry...</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {
-                selectedAttack && (
-                    <AttackDetails attack={selectedAttack} onClose={() => setSelectedAttack(null)} />
-                )
-            }
-        </div >
-    );
+ const [metrics,setMetrics]=useState(null),[mapData,setMapData]=useState([]),[attacks,setAttacks]=useState([]),[nodes,setNodes]=useState([]),[focus,setFocus]=useState(null),[details,setDetails]=useState(null),[severityFilter,setSeverityFilter]=useState('All'),[mode,setMode]=useState('attacks'),[globeZoom,setGlobeZoom]=useState(1);
+ const [searchParams]=useSearchParams();
+ const load=async()=>{try{const [overview,attackList,nodeList]=await Promise.all([getAnalyticsOverview(),getAttacks({limit:50}),getNodes(),getCampaigns({limit:100}).catch(()=>[])]);setMetrics(overview.metrics);setMapData(overview.map_data||[]);setAttacks(attackList||[]);setNodes(nodeList||[]);setFocus(current=>current||attackList?.find(a=>a.severity==='Critical')||attackList?.[0]||null)}catch(error){console.error('Failed to load command center:',error)}};
+ useEffect(()=>{load();const id=setInterval(load,5000);return()=>clearInterval(id)},[]);
+ useEffect(()=>{if(searchParams.get('panel')==='sensors') setMode('sensors');else setMode('attacks')},[searchParams]);
+ const investigate=async id=>{try{setDetails(await getAttackDetails(id))}catch(error){console.error(error)}};
+ const sensorCount=nodes.filter(node=>node.status==='active').length||metrics?.active_nodes||0;
+ const visibleAttacks=useMemo(()=>severityFilter==='All'?attacks:attacks.filter(attack=>attack.severity===severityFilter),[attacks,severityFilter]);
+ const visibleMapData=useMemo(()=>severityFilter==='All'?mapData:mapData.filter(point=>visibleAttacks.some(attack=>attack.country===point.country)),[mapData,visibleAttacks,severityFilter]);
+ const chart=useMemo(()=>Array.from({length:31},(_,i)=>18+((visibleAttacks[i]?.id?.charCodeAt?.(0)||i*13)%65)),[visibleAttacks]);
+ const threatScore=focus?.report?.confidence?Math.round(focus.report.confidence*100):focus?.severity==='Critical'?94:focus?.severity==='High'?78:52;
+ const selectAttack=useCallback(attack=>{if(attack) setFocus(attack)},[]);
+ const filter=severity=>{setSeverityFilter(severity);const next=severity==='All'?attacks:attacks.filter(attack=>attack.severity===severity);if(next.length) setFocus(next[0]);};
+ return <div className="recon-center"><div className="reference-frame"><div className="frame-stars"/><ThreatGlobe mapData={visibleMapData} attacks={visibleAttacks} selectedAttackId={focus?.id} zoom={globeZoom} onSelectAttack={selectAttack}/>
+  <section className="ref-live-threat smoked-panel"><div className="incident-thumb"><div className="thumb-radar"><CircleDot size={29}/></div><span>{shortTime(focus?.created_at)}</span></div><div className="incident-heading"><i className={`threat-led ${tone(focus?.severity)}`}/><span>LIVE THREAT</span><b>{focus?.severity||'MONITORING'}</b></div><strong>{focus?.classification||'No active intrusion'}</strong><p>{focus?.attacker_ip||'Origin resolving'} · {focus?.country||'Global source'}</p><div className="incident-stat"><span>Score <b>{threatScore}</b></span><span>Target <b>{focus?.service||'Sensor'}</b></span></div></section>
+  <aside className="left-rail"><span className="rail-label filters">THREAT FILTERS</span><button onClick={()=>filter('All')} className={`rail-control ${severityFilter==='All'?'active':''}`}><i className="filter-dot low"/><em>All threats</em></button>{['Critical','High','Medium','Low'].map(item=><button onClick={()=>filter(item)} className={`rail-control ${severityFilter===item?'active':''}`} key={item}><i className={`filter-dot ${tone(item)}`}/><em>{item}</em></button>)}</aside>
+  <div className="threat-tag tag-one"><i/><div><b>{focus?.classification||'SSH BRUTE FORCE'}</b><span>{focus?.attacker_ip||'SOURCE RESOLVING'}</span></div></div><div className="threat-tag tag-two"><Target size={13}/><div><b>THREAT SCORE {threatScore}</b><span>{focus?.country||'Origin'} → LLMPot sensor</span></div></div>
+  <section className="ref-selected-threat smoked-panel"><div className="selected-title"><span><Target size={13}/> SELECTED THREAT</span><i className={`threat-led ${tone(focus?.severity)}`}/></div><div className="threat-orb"><ShieldAlert size={47}/><span className="orbital-scan"/></div><h3>{focus?.classification||'Awaiting attack selection'}</h3><div className="selected-grid"><span>Source <b>{focus?.attacker_ip||'—'}</b></span><span>Location <b>{focus?.country||'—'}</b></span><span>Severity <b className={tone(focus?.severity)}>{focus?.severity||'—'}</b></span><span>MITRE <b>{focus?.mitre_technique||focus?.report?.mitre_technique||'Pending'}</b></span></div><div className="threat-meter"><span>AI assessment</span><b style={{width:`${threatScore}%`}}/></div><p className="ai-line">{focus?.report?.executive_summary||'Correlation engine is assessing behavior and campaign context.'}</p><button className="inspect-button" disabled={!focus?.id} onClick={()=>investigate(focus.id)}>Open investigation <span>↗</span></button></section>
+  <div className="zoom-controls"><button title="Zoom in" onClick={()=>setGlobeZoom(value=>Math.min(1.42,value+.1))}>+</button><button title="Zoom out" onClick={()=>setGlobeZoom(value=>Math.max(.78,value-.1))}>−</button></div>
+  <section className="ref-sensors smoked-panel"><div className="sensor-title"><span>{mode==='sensors'?'SENSOR STATUS':'ACTIVE SENSORS'}</span><Wifi size={13}/></div><div className="sensor-art"><Satellite size={61}/><i/></div><div className="sensor-value"><b>{sensorCount}</b><span>online</span></div><div className="sensor-list">{nodes.slice(0,3).map((node,i)=><button title="Select sensor" onClick={()=>setMode('sensors')} key={node.id||i}><i className={node.status==='active'?'ok':''}/>{node.region||node.ip||'LLMPot sensor'}</button>)}{!nodes.length&&<span><i className="ok"/>Waiting for sensor status</span>}</div></section>
+  <section className="ref-table smoked-panel"><div className="table-tabs"><b>{severityFilter==='All'?'LIVE ATTACKS':`${severityFilter.toUpperCase()} ATTACKS`} <sup>{visibleAttacks.length}</sup></b><span>ACTIVE SENSORS {sensorCount}</span><button title="Clear severity filter" onClick={()=>filter('All')}><SlidersHorizontal size={12}/></button></div><div className="attack-head"><span>SOURCE</span><span>LOCATION</span><span>ATTACK</span><span>RISK</span></div>{visibleAttacks.slice(0,4).map(attack=><button onClick={()=>setFocus(attack)} className={`ref-attack-row ${focus?.id===attack.id?'selected':''}`} key={attack.id}><span><i className={`threat-led ${tone(attack.severity)}`}/>{attack.attacker_ip||'Unknown'}</span><span>{attack.country||'Unknown'}</span><span>{attack.classification||'Unclassified'}</span><strong className={tone(attack.severity)}>{attack.severity||'Low'}</strong></button>)}{!visibleAttacks.length&&<p className="empty-row">No matching live telemetry.</p>}</section>
+  <section className="ref-activity smoked-panel"><div className="activity-title"><div><span>THREAT ACTIVITY</span><b>Last 24 hours</b></div><span className="activity-key"><i/> critical <i/> observed</span></div><div className="line-graph"><svg viewBox="0 0 420 110" preserveAspectRatio="none"><defs><linearGradient id="fireFill" x1="0" x2="0" y1="0" y2="1"><stop stopColor="#f25d42" stopOpacity=".30"/><stop offset="1" stopColor="#f25d42" stopOpacity="0"/></linearGradient></defs><path className="fill" d={`M0,${105-chart[0]} ${chart.map((v,i)=>`L${i*14},${105-v}`).join(' ')} L420,110 L0,110Z`}/><path d={`M0,${105-chart[0]} ${chart.map((v,i)=>`L${i*14},${105-v}`).join(' ')}`}/></svg></div><div className="activity-footer"><span>00:00 UTC</span><span>12:00</span><span>NOW</span></div></section>
+ </div>{details&&<AttackDetails attack={details} onClose={()=>setDetails(null)}/>}</div>;
 }

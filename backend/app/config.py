@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: Optional[str] = None
     
     # GeoIP
-    GEOIP_DB_PATH: str = "/tmp/GeoLite2-City.mmdb"
+    GEOIP_DB_PATH: str = "/app/data/GeoLite2-City.mmdb"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -12,6 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Bake GeoLite2-City database into image (avoids runtime download; git.io source is dead)
+COPY data/GeoLite2-City.mmdb /app/data/GeoLite2-City.mmdb
+
 # Create non-root user
 RUN adduser --disabled-password --gecos '' apirunner && chown -R apirunner:apirunner /app
 USER apirunner

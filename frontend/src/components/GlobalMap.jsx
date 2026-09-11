@@ -27,9 +27,9 @@ export default function GlobalMap({ mapData }) {
     const totalAttacks = mapData.reduce((sum, p) => sum + (p.attacks || 1), 0);
 
     return (
-        <div className="glass-panel p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Global Attack Origins</h3>
+        <div className="glass-panel map-panel p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-4 mb-5">
+                <div><p className="panel-kicker">Geospatial intelligence</p><h3 className="text-lg font-semibold mt-1">Global attack origins</h3></div>
                 <div className="flex items-center gap-3 text-xs text-gray-400">
                     <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse" />
@@ -41,12 +41,12 @@ export default function GlobalMap({ mapData }) {
             </div>
 
             <div
-                className="relative rounded-xl overflow-hidden border border-slate-800"
-                style={{ height: '340px', background: '#050e1f' }}
+                className="map-canvas relative rounded-xl overflow-hidden border border-slate-800"
+                style={{ height: '408px', background: '#050e1f' }}
             >
                 <ComposableMap
-                    projection="geoMercator"
-                    projectionConfig={{ scale: 135, center: [10, 20] }}
+                    projection="geoOrthographic"
+                    projectionConfig={{ scale: 205, rotate: [-12, -18, 0] }}
                     style={{ width: '100%', height: '100%' }}
                 >
                     <ZoomableGroup zoom={1} minZoom={0.7} maxZoom={5}>
@@ -56,8 +56,8 @@ export default function GlobalMap({ mapData }) {
                                     <Geography
                                         key={geo.rsmKey}
                                         geography={geo}
-                                        fill="#0f2644"
-                                        stroke="#1a3a64"
+                                        fill="#16324a"
+                                        stroke="#2b5876"
                                         strokeWidth={0.4}
                                         style={{
                                             default: { outline: 'none' },
@@ -97,6 +97,18 @@ export default function GlobalMap({ mapData }) {
                         })}
                     </ZoomableGroup>
                 </ComposableMap>
+
+                <div className="orbital-ring orbital-ring-one" />
+                <div className="orbital-ring orbital-ring-two" />
+
+                <div className="map-activity-card hidden sm:block">
+                    <p className="panel-kicker">Active activity</p>
+                    {mapData.slice(0, 3).map((point, index) => <div className="map-activity-row" key={`${point.country}-${index}`}>
+                        <span className="activity-pulse" />
+                        <span className="truncate">{point.country || 'Unknown origin'}</span>
+                        <span className="ml-auto font-mono text-gray-300">{point.attacks || 1}</span>
+                    </div>)}
+                </div>
 
                 {/* Tooltip overlay */}
                 {tooltip && (

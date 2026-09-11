@@ -11,12 +11,13 @@ export default function NodeStatus({ nodes }) {
 
     return (
         <div className="glass-panel overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-800">
-                <h3 className="text-lg font-semibold">Active Sensors</h3>
+            <div className="px-5 sm:px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+                <div><p className="panel-kicker">Infrastructure health</p><h3 className="text-lg font-semibold mt-1">Active sensors</h3></div>
+                <span className="text-xs font-mono text-primary-400">{nodes.length} online</span>
             </div>
             <div className="p-4 space-y-4">
                 {nodes.map(n => (
-                    <div key={n.id} className="bg-gray-900/50 p-4 rounded-lg flex items-center justify-between border border-gray-800/50 hover:border-gray-700 transition-colors">
+                    <div key={n.id} className="sensor-row bg-gray-900/50 p-4 rounded-lg flex items-center justify-between border border-gray-800/50 hover:border-gray-700 transition-colors">
                         <div>
                             <div className="flex items-center space-x-2">
                                 <div className={`w-2 h-2 rounded-full ${n.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>

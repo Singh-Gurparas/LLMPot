@@ -12,17 +12,17 @@ export default function StatsCards({ metrics }) {
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {cards.map((c, i) => (
-                <div key={i} className="glass-panel p-6 flex items-center justify-between">
+                <div key={i} className="metric-card glass-panel p-5 flex items-center justify-between" style={{ '--metric-color': i === 0 ? '#fb7185' : i === 1 ? '#fb923c' : i === 2 ? '#22d3ee' : '#34d399' }}>
                     <div>
-                        <p className="text-gray-400 text-sm font-medium">{c.title}</p>
-                        <h3 className="text-3xl font-bold mt-2">
+                        <p className="text-gray-500 text-[11px] uppercase tracking-[0.12em] font-semibold">{c.title}</p>
+                        <h3 className="text-3xl font-bold mt-1.5 tracking-tight">
                             {Number(c.value || 0).toLocaleString()}
                         </h3>
                     </div>
 
-                    <div className={`p-3 rounded-full bg-gray-800/50 ${c.color}`}>
+                    <div className={`metric-icon p-3 rounded-xl ${c.color}`}>
                         <c.icon size={24} />
                     </div>
                 </div>

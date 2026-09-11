@@ -16,8 +16,9 @@ export default function AttackFeed({ attacks, onSelectAttack }) {
 
     return (
         <div className="glass-panel overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-800">
-                <h3 className="text-lg font-semibold">Real-time Attack Feed</h3>
+            <div className="px-5 sm:px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+                <div><p className="panel-kicker">Streaming telemetry</p><h3 className="text-lg font-semibold mt-1">Real-time attack feed</h3></div>
+                <span className="text-[10px] font-mono text-accent-500 flex items-center gap-1.5"><span className="live-dot" />LIVE</span>
             </div>
             <div className="overflow-y-auto max-h-[400px]">
                 <table className="w-full text-left text-sm">
